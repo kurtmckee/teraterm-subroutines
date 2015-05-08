@@ -1,0 +1,122 @@
+; subroutine.ttl -- Supports calling subroutines in Tera Term Macro files
+; Copyright (C) 2015 Kurt McKee <contactme@kurtmckee.org>
+;
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+;
+; Returns:
+;
+; result - (int) This is set to ``0`` if there were no errors. Otherwise, it
+;          will be set to one of the constants defined below.
+;
+;
+; Return code constants:
+;
+; CALLSUB_IS_NOT_DEFINED   - `callsub` is not defined.
+; CALLSUB_IS_NOT_A_STRING  - `callsub` is not a string.
+; CALLSUB_IS_EMPTY         - `callsub` is an empty string.
+; INCLUDE_DEPTH_EXCEEDED   - The maximum include depth was reached.
+;                            Tera Term imposes a limit of 9 includes.
+; INCLUDE_FILE_NOT_FOUND   - The specified file is inaccessible.
+; GOTO_LABEL_NOT_DEFINED   - The specified goto label is undefined.
+;
+
+CALLSUB_IS_NOT_DEFINED  = 1 << 0
+CALLSUB_IS_NOT_A_STRING = 1 << 1
+CALLSUB_IS_EMPTY        = 1 << 2
+INCLUDE_FILE_NOT_FOUND  = 1 << 3
+INCLUDE_DEPTH_EXCEEDED  = 1 << 4
+GOTO_LABEL_NOT_DEFINED  = 1 << 5
+
+; Manage the include depth
+ifdefined __include_depth
+if result == 0 then
+    __include_depth = 1
+elseif result == 1 then
+    __include_depth = __include_depth + 1
+endif
+
+; Tera Term only allows a depth of 9 includes
+if __include_depth >= 9 then
+    __include_depth = __include_depth - 1
+    result = INCLUDE_DEPTH_EXCEEDED
+    exit
+endif
+
+; 'callsub' must be defined and must be a string
+ifdefined callsub
+if result == 0 then
+    __include_depth = __include_depth - 1
+    result = CALLSUB_IS_NOT_DEFINED
+    exit
+elseif result != 3 then
+    __include_depth = __include_depth - 1
+    result = CALLSUB_IS_NOT_A_STRING
+    exit
+endif
+
+; 'callsub' must not be empty
+strlen callsub
+if result == 0 then
+    __include_depth = __include_depth - 1
+    result = CALLSUB_IS_EMPTY
+    exit
+endif
+
+; 'callsub' must be one of these forms:
+;
+;   1. '<include file>'
+;   2. '<include file>:<goto label>'
+;
+; If <goto label> is not provided, `__include_goto_label` will be
+; set to the empty string. The included file will need to determine
+; a default subroutine to call.
+;
+; <include file> may or may not end with '.ttl' for convenience
+__include_filename = ''
+strscan callsub ':'
+if result == 0 then
+    strconcat __include_filename callsub
+    __include_goto_label = ''
+else
+    strsplit callsub ':'
+    strconcat __include_filename groupmatchstr1
+    __include_goto_label = groupmatchstr2
+endif
+
+strmatch __include_filename '\.ttl'
+if result == 0 then
+    strconcat __include_filename '.ttl'
+endif
+
+filestat __include_filename result
+if result == -1 then
+    result = INCLUDE_FILE_NOT_FOUND
+else
+    __include_depth = __include_depth + 1
+    include __include_filename
+    __include_depth = __include_depth - 1
+endif
+
+; Erase the variables to help ensure clean calls each time
+callsub = ''
+__include_filename = ''
+__include_goto_label = ''
+
+__include_depth = __include_depth - 1
+exit

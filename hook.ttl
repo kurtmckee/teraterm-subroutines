@@ -1,0 +1,41 @@
+; hook.ttl -- Copy this to the top of each of your modular files.
+; Copyright (C) 2015 Kurt McKee <contactme@kurtmckee.org>
+; Licensed under the terms of the MIT license.
+
+
+;-------------------------------------------------------------------------
+; Confirm that ``__include_goto_label`` is defined and is a string.
+ifdefined __include_goto_label
+if result == 3 then
+    ; Confirm that ``__include_goto_label`` is not an empty string.
+    strlen __include_goto_label
+    if result then
+        ; Confirm that ``__include_goto_label`` is an actual label.
+        sprintf2 __execstr 'ifdefined %s' __include_goto_label
+        execcmnd __execstr
+        if result == 4 then
+            ; The label exists. Call the subroutine and return.
+            sprintf2 __execstr 'call %s' __include_goto_label
+            execcmnd __execstr
+            exit
+        endif
+        result = GOTO_LABEL_NOT_DEFINED
+        exit
+    endif
+endif
+; This is the default subroutine to call. Change the name if desired.
+call default
+exit
+;-------------------------------------------------------------------------
+
+
+; The rest of this file is used for the unit tests.
+
+:default
+    __return_int = 1
+return
+
+
+:nondefault
+    __return_int = 2
+return

@@ -1,0 +1,56 @@
+; runtests.ttl - Run the unit tests for subroutine.ttl
+; Copyright (C) 2015 Kurt McKee <contactme@kurtmckee.org>
+; Licensed under the terms of the MIT license.
+
+flag = 0
+
+; Test: CALLSUB_IS_NOT_DEFINED
+include 'subroutine.ttl'
+if result != CALLSUB_IS_NOT_DEFINED then
+    flag = 1
+    messagebox 'Test failure: CALLSUB_IS_NOT_DEFINED' 'FAIL'
+endif
+
+; Test: INCLUDE_FILE_NOT_FOUND
+callsub = 'not-a-file.ttl'
+include 'subroutine.ttl'
+if result != INCLUDE_FILE_NOT_FOUND then
+    flag = 1
+    messagebox 'Test failure: INCLUDE_FILE_NOT_FOUND' 'FAIL'
+endif
+
+; Test: CALLSUB_IS_EMPTY
+callsub = ''
+include 'subroutine.ttl'
+if result != CALLSUB_IS_EMPTY then
+    flag = 1
+    messagebox 'Test failure: CALLSUB_IS_EMPTY' 'FAIL'
+endif
+
+; Test: GOTO_LABEL_NOT_DEFINED
+callsub = 'hook:notdefined'
+include 'subroutine.ttl'
+if result != GOTO_LABEL_NOT_DEFINED then
+    flag = 1
+    messagebox 'Test failure: GOTO_LABEL_NOT_DEFINED' 'FAIL'
+endif
+
+; Test: call default
+callsub = 'hook'
+include 'subroutine.ttl'
+if __return_int != 1 then
+    flag = 1
+    messagebox 'Test failure: call default' 'FAIL'
+endif
+
+; Test: call non-default
+callsub = 'hook:nondefault'
+include 'subroutine.ttl'
+if __return_int != 2 then
+    flag = 1
+    messagebox 'Test failure: call nondefault' 'FAIL'
+endif
+
+if ! flag then
+    messagebox 'All tests passed' 'PASS'
+endif
