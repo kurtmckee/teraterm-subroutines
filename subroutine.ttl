@@ -36,6 +36,10 @@
 ; GOTO_LABEL_NOT_DEFINED   - The specified goto label is undefined.
 ;
 
+; Customize this to move all include files to a subdirectory.
+; Include a trailing slash. For instance: 'includes\'
+__include_filename = ''
+
 CALLSUB_IS_NOT_DEFINED  = 1 << 0
 CALLSUB_IS_NOT_A_STRING = 1 << 1
 CALLSUB_IS_EMPTY        = 1 << 2
@@ -88,7 +92,6 @@ endif
 ; a default subroutine to call.
 ;
 ; <include file> may or may not end with '.ttl' for convenience
-__include_filename = ''
 strscan callsub ':'
 if result == 0 then
     strconcat __include_filename callsub
