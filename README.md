@@ -79,7 +79,6 @@ Second, include subroutine.ttl in your main file.
     ; Call the ``clear_system_logs`` subroutine.
     callsub = 'util:clear_system_logs'
     include 'subroutine.ttl'
-    -----------------------------------------------------------------------
 
 
 What happens if there is a problem?
@@ -123,8 +122,8 @@ variables defined in the subroutines. For instance:
     callsub = 'util:get_serial_number'
     include 'subroutine.ttl'
     messagebox serial_number 'Serial number'
-    
-    
+
+
     Example: util.ttl
     -----------------------------------------------------------------------
     :get_serial_number
