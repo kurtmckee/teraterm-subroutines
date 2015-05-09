@@ -18,9 +18,9 @@ This will call the ``clear_system_logs`` subroutine in util.ttl:
         ; Put your code here!
     return
 
-subroutine.ttl requires Tera Term version 4.66. It is licensed under the terms
-of [the MIT license](http://opensource.org/licenses/MIT). See LICENSE.txt for
-the full text of the license.
+subroutine.ttl requires Tera Term version 4.66 or higher. It is licensed under
+the terms of [the MIT license](http://opensource.org/licenses/MIT).
+See LICENSE.txt for the full text of the license.
 
 
 How do I use it?
