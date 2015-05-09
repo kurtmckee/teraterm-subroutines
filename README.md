@@ -42,6 +42,7 @@ the following code to the top of each of your modular .ttl files:
                 ; The label exists. Call the subroutine and return.
                 sprintf2 __execstr 'call %s' __include_goto_label
                 execcmnd __execstr
+                result = 0
                 exit
             endif
             result = GOTO_LABEL_NOT_DEFINED

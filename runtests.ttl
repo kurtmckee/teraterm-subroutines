@@ -38,7 +38,7 @@ endif
 ; Test: call default
 callsub = 'hook'
 include 'subroutine.ttl'
-if __return_int != 1 then
+if result || (__return_int != 1) then
     flag = 1
     messagebox 'Test failure: call default' 'FAIL'
 endif
@@ -46,7 +46,7 @@ endif
 ; Test: call non-default
 callsub = 'hook:nondefault'
 include 'subroutine.ttl'
-if __return_int != 2 then
+if result || (__return_int != 2) then
     flag = 1
     messagebox 'Test failure: call nondefault' 'FAIL'
 endif
