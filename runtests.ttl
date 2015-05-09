@@ -4,6 +4,13 @@
 
 flag = 0
 
+; Test: include a hooked file
+include 'hook.ttl'
+if result || (__return_int != 1) then
+    flag = 1
+    messagebox 'Test failure: include a hooked file' 'FAIL'
+endif
+
 ; Test: CALLSUB_IS_NOT_DEFINED
 include 'subroutine.ttl'
 if result != CALLSUB_IS_NOT_DEFINED then
